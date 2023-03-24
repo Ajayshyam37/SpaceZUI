@@ -19,7 +19,7 @@ const Heading = styled.h3`
 const PageWrapper = styled.div`
 height: 100vh;
 width: 100%;
-background: linear-gradient(180deg, #d9d9d9 0%, #f0f0f0 80%);
+background: #f5f5f5;
 display: flex;
 flex-direction: column;
 `;
