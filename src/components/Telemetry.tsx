@@ -1,15 +1,55 @@
-import {Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button } from "@mui/material"
+import { Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material"
 import axios, { AxiosResponse } from "axios";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import styled from "styled-components";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import StopIcon from "@mui/icons-material/Stop";
+import LaunchIcon from "@mui/icons-material/Launch";
+import ErrorMessage from "./ErrorMessage";
 
-function Telemetry()
-{
+const StyledButton = styled.button`
+  background-color: #6c63ff;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-right: 10px;
+  &:disabled {
+    background-color: #c4c4c4;
+    color: #000;
+  }
+`;
+
+interface Communications {
+    spaceCraft_ID: number;
+    name: string;
+    state: number;
+    commType: number;
+    payloadState: number,
+    payload_ID: string,
+    payloadType: number,
+    telemetry: boolean,
+    payloaddata: boolean,
+    orbitRadius: number,
+    totalTimeToOrbit: number
+}
+
+type TelemetryProps = {
+    communications?: Communications;
+}
+
+export default function Telemetry(props: TelemetryProps) {
+    const [error, setError] = useState<string>("");
     const [telemetry, setTelemetryData] = useState<TelemetryData[]>([]);
     const [launchStatus, setPayloadStatus] = useState<boolean>(false); // state for payload status
-    const [isRunning, setIsRunning] = useState(true);
-    const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
-    
+    const [isFetching, setIsFetching] = useState(false);
+
     interface TelemetryData {
         id: string;
         altitude: string;
@@ -20,72 +60,98 @@ function Telemetry()
     }
 
     const { spaceCraft_ID } = useParams();
-    
+
+    const handleStart = () => {
+        setIsFetching(true);
+    };
+
+    const handleStop = () => {
+        setIsFetching(false);
+    };
+
+
     useEffect(() => {
         let count = 0;
-        const id = setInterval(() => {
-            axios.get(`https://localhost:7050/Communications/GetTelmentry/${spaceCraft_ID}?count=${count}`)
-                .then((response: AxiosResponse<any>) => {
-                    setTelemetryData(prevTelemetryData => [...prevTelemetryData, ...response.data]);
-                    
-                    // check if timeToOrbit is 0 to set payload status
-                    if (response.data[0]?.timeToOrbit === "0") {
-                        console.log("true");
-                        setPayloadStatus(true);
-                    } else {
-                        setPayloadStatus(false);
-                    }
-                });
-            count++;
-        }, 5000);
-        setIntervalId(id);
-        return () => clearInterval(id);
-    }, []);
+        let intervalId: NodeJS.Timeout;
 
-    const stopApiCall = () => {
-        setIsRunning(false);
-        if(intervalId !== null) {
-            clearInterval(intervalId);
+        if (isFetching) {
+            intervalId = setInterval(() => {
+                axios
+                    .get(`https://localhost:7050/Communications/GetTelemetry`, { params: { id: spaceCraft_ID, count: count } })
+                    .then((response: AxiosResponse<any>) => {
+                        setTelemetryData(prevTelemetryData => [...response.data,...prevTelemetryData]);
+                        // check if timeToOrbit is 0 to set payload status
+                        if (response.data[0]?.timeToOrbit === "0") {
+                            console.log("true");
+                            setPayloadStatus(true);
+                        } else {
+                            setPayloadStatus(false);
+                        }
+                    }).catch(error => {
+                        setError(error);
+                    });
+                count++;
+            }, 5000);
         }
+
+        return () => clearInterval(intervalId);
+    }, [isFetching]);
+
+
+    if (error) {
+        return (
+            <ErrorMessage />
+        );
     }
 
-    const startApiCall = () => {
-        setIsRunning(true);
-    }
-    
+
     return (
         <>
-        <Grid item md={6} alignItems="">
-            <Button variant="contained" color="primary" disabled={!launchStatus}>Launch Payload</Button>
-            {isRunning ? <Button variant="contained" color="primary" onClick={stopApiCall}>Stop Telemetry</Button> : <Button variant="contained" color="primary" onClick={startApiCall}>Start Telemetry</Button>}
-        </Grid>
-        <Grid item xs={12}>
-                
-                <Table stickyHeader style={{ maxHeight: 200, overflow:"scroll"}}>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Altitude</TableCell>
-                            <TableCell>Longitude</TableCell>
-                            <TableCell>Latitude</TableCell>
-                            <TableCell>Temperature</TableCell>
-                            <TableCell>Time to Orbit</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {telemetry.map((data) => (
-                            <TableRow key={data.id}>
-                                <TableCell>{data.altitude}</TableCell>
-                                <TableCell>{data.longitude}</TableCell>
-                                <TableCell>{data.latitude}</TableCell>
-                                <TableCell>{data.temperature}</TableCell>
-                                <TableCell>{data.timeToOrbit}</TableCell>
+            <Grid container spacing={3}>
+                <Grid item xs={6}>
+                </Grid>
+                <Grid item xs={6} container justifyContent="flex-end">
+                    <Grid item>
+                        <StyledButton disabled={!launchStatus}>
+                            <LaunchIcon />
+                            Launch Payload
+                        </StyledButton>
+                    </Grid>
+                    <Grid item>
+                        {isFetching ? (
+                            <StyledButton onClick={handleStop} className="StyledButton"><StopIcon />Telemetry Data</StyledButton>
+                        ) : (
+                            <StyledButton onClick={handleStart}> <PlayArrowIcon />Telemetry Data</StyledButton>
+                        )}
+                    </Grid>
+                </Grid>
+                <Grid item xs={12} style={{ maxHeight: 500, overflow: "scroll" }}>
+                <TableContainer>
+                    <Table stickyHeader>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>Altitude</TableCell>
+                                <TableCell>Longitude</TableCell>
+                                <TableCell>Latitude</TableCell>
+                                <TableCell>Temperature</TableCell>
+                                <TableCell>Time to Orbit</TableCell>
                             </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-        </Grid>
+                        </TableHead>
+                        <TableBody>
+                            {telemetry.map((data) => (
+                                <TableRow key={data.id}>
+                                    <TableCell>{data.altitude}</TableCell>
+                                    <TableCell>{data.longitude}</TableCell>
+                                    <TableCell>{data.latitude}</TableCell>
+                                    <TableCell>{data.temperature}</TableCell>
+                                    <TableCell>{data.timeToOrbit}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+                </Grid>
+            </Grid>
         </>
     );
 }
-
-export default Telemetry;

@@ -1,119 +1,206 @@
 import { useState, useEffect } from 'react';
 import axios, { AxiosResponse } from 'axios';
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import StopIcon from "@mui/icons-material/Stop";
 import {
+    TableContainer,
+    Grid,
     Table,
     TableBody,
     TableCell,
-    TableContainer,
     TableHead,
     TableRow,
-    Paper,
-    TablePagination,
 } from '@mui/material';
 import { useParams } from 'react-router-dom';
+import styled from 'styled-components';
+import ErrorMessage from './ErrorMessage';
 
-interface TelemetryData {
-    id: string;
-    altitude: string;
-    longitude: string;
-    latitude: string;
-    temperature: string;
-    timeToOrbit: string;
+const StyledButton = styled.button`
+  background-color: #6c63ff;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-right: 10px;
+  &:disabled {
+    background-color: #c4c4c4;
+    color: #000;
+  }
+`;
+
+interface Communications {
+    spaceCraft_ID: number;
+    name: string;
+    state: number;
+    commType: number;
+    payloadState: number,
+    payload_ID: string,
+    payloadType: number,
+    telemetry: boolean,
+    payloaddata: boolean,
+    orbitRadius: number,
+    totalTimeToOrbit: number
 }
 
-interface Column {
-    id: keyof TelemetryData;
-    label: string;
-    minWidth?: number;
-    align?: 'right';
-    format?: (value: number) => string;
+interface ApiResponse {
+    CommunicationData?: {
+        Bandwidth: {
+            Uplink: number;
+            Downlink: number;
+        };
+    }[];
+    ImageData?: string[];
+    ScientificData?: {
+        Weather: {
+            Rain: number;
+            Humidity: number;
+            Snow: number;
+        };
+    }[];
 }
 
-const columns: Column[] = [
-    { id: 'altitude', label: 'Altitude', minWidth: 100 },
-    { id: 'longitude', label: 'Longitude', minWidth: 100 },
-    { id: 'latitude', label: 'Latitude', minWidth: 100 },
-    { id: 'temperature', label: 'Temperature', minWidth: 100 },
-    { id: 'timeToOrbit', label: 'Time To Orbit', minWidth: 100 },
-];
+type PayLoadProps = {
+    communications?: Communications;
+}
 
-const TelemetryTable = () => {
-    const [data, setPayLoadData] = useState<TelemetryData[]>([]);
-    const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
-
-    interface TelemetryData {
-        id: string;
-        altitude: string;
-        longitude: string;
-        latitude: string;
-        temperature: string;
-        timeToOrbit: string;
-    }
-
-    const { spaceCraft_ID } = useParams();
+export default function PayLoad(props: PayLoadProps) {
+    const [error, setError] = useState<string>("");
+    const [payloadData, setPayloadData] = useState<ApiResponse>({});
+    const [isFetching, setIsFetching] = useState(false);
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            axios.get("https://localhost:7050/Communications/GetTelmentry/" + spaceCraft_ID)
-                .then((response: AxiosResponse<any>) => {
-                    setPayLoadData(prevTelemetryData => [...prevTelemetryData, ...response.data]);
-                });
-        }, 5000);
-        return () => clearInterval(interval);
-    }, []);
+        let count = 0;
+        let intervalId: NodeJS.Timeout;
 
-    const handleChangePage = (event: unknown, newPage: number) => {
-        setPage(newPage);
+        if (isFetching) {
+            intervalId = setInterval(() => {
+                axios
+                    .get(`https://localhost:7050/Communications/GetPayLoadData`, { params: { payloadtype: props.communications?.payloadType, count: count } })
+                    .then((response: AxiosResponse<any>) => {
+                        setPayloadData((prevPayloadData) => ({
+                            ...prevPayloadData,
+                            CommunicationData: response.data.CommunicationData
+                                ? [response.data.CommunicationData, ...(prevPayloadData.CommunicationData || [])]
+                                : prevPayloadData.CommunicationData,
+                            ImageData: response.data.imageData
+                                ? [response.data.imageData, ...(prevPayloadData.ImageData || [])]
+                                : prevPayloadData.ImageData,
+                            ScientificData: response.data.ScientificData
+                                ? [{ Weather: response.data.ScientificData.Weather }, ...(prevPayloadData.ScientificData || [])]
+                                : prevPayloadData.ScientificData,
+                        }));                        
+                    })
+                    .catch(error => {
+                        setError(error);
+                    });
+                count++;
+            }, 5000);
+        }
+
+        return () => clearInterval(intervalId);
+    }, [isFetching]);
+
+    const handleStart = () => {
+        setIsFetching(true);
     };
 
-    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setRowsPerPage(+event.target.value);
-        setPage(0);
+    const handleStop = () => {
+        setIsFetching(false);
     };
+
+
+    if (error) {
+        return (
+            <ErrorMessage />
+        );
+    }
 
     return (
         <>
-            <TableContainer sx={{ maxHeight: 500 }}>
-                <Table stickyHeader>
-                    <TableHead>
-                        <TableRow>
-                            {columns.map((column) => (
-                                <TableCell key={column.id} align={column.align} style={{ minWidth: column.minWidth }}>
-                                    {column.label}
-                                </TableCell>
-                            ))}
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                            return (
-                                <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                                    {columns.map((column) => {
-                                        const value = row[column.id];
-                                        return (
-                                            <TableCell key={column.id} align={column.align} style={{padding: '10px'}}>
-                                                {column.format && typeof value === 'number' ? column.format(value) : value}
+            <Grid container>
+                <Grid item xs={6}>
+                </Grid>
+                <Grid item xs={6} container justifyContent="flex-end">
+                    <Grid item>
+                        {isFetching ? (
+                            <StyledButton onClick={handleStop} className="StyledButton">
+                                <StopIcon /> PayLoad Data
+                            </StyledButton>
+                        ) : (
+                            <StyledButton onClick={handleStart}>
+                                <PlayArrowIcon /> PayLoad Data
+                            </StyledButton>
+                        )}
+                    </Grid>
+                </Grid>
+                <Grid item xs={12}>
+                    {props.communications?.payloadType === 0 && payloadData.CommunicationData && (
+                        <TableContainer sx={{ maxHeight: 500, overflow: "scroll" }}>
+                            <Table>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>Uplink</TableCell>
+                                        <TableCell>Downlink</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {payloadData.CommunicationData.map((data: any, index: number) => (
+                                        <TableRow key={index}>
+                                            <TableCell>{data.Bandwidth.Uplink}</TableCell>
+                                            <TableCell>{data.Bandwidth.Downlink}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    )}
+                    {props.communications?.payloadType === 1 && payloadData.ImageData && (
+                        <TableContainer sx={{ maxHeight: 500, overflow: "scroll" }}>
+                            <Table>
+                                <TableBody>
+                                    {payloadData.ImageData.map((data: any, index: number) => (
+                                        <TableRow key={index}>
+                                            <TableCell style={{ textAlign: 'center' }}>
+                                                <img src={data} height="510" width="800" alt="Spy Images" />
                                             </TableCell>
-                                        );
-                                    })}
-                                </TableRow>
-                            );
-                        })}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-            <TablePagination
-                rowsPerPageOptions={[10, 25, 100]}
-                component="div"
-                count={data.length}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                onPageChange={handleChangePage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-            />
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    )}
+
+                    {props.communications?.payloadType === 2 && payloadData.ScientificData && (
+                        <TableContainer sx={{ maxHeight: 500, overflow: "scroll" }}>
+                            <Table>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>Rain</TableCell>
+                                        <TableCell>Humidity</TableCell>
+                                        <TableCell>Snow</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {payloadData.ScientificData.map((data: any, index: number) => (
+                                        <TableRow key={index}>
+                                            <TableCell>{data.Weather.Rain}</TableCell>
+                                            <TableCell>{data.Weather.Humidity}</TableCell>
+                                            <TableCell>{data.Weather.Snow}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    )}
+
+
+                </Grid>
+            </Grid>
         </>
     );
 };
-
-export default TelemetryTable;
