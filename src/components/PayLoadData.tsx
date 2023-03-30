@@ -72,6 +72,9 @@ export default function PayLoad(props: PayLoadProps) {
     const [error, setError] = useState<string>("");
     const [payloadData, setPayloadData] = useState<ApiResponse>({});
     const [isFetching, setIsFetching] = useState(false);
+    const [isFetching1, setIsFetching1] = useState(false);
+
+    console.log(props);
 
     useEffect(() => {
         let count = 0;
@@ -93,7 +96,8 @@ export default function PayLoad(props: PayLoadProps) {
                             ScientificData: response.data.ScientificData
                                 ? [{ Weather: response.data.ScientificData.Weather }, ...(prevPayloadData.ScientificData || [])]
                                 : prevPayloadData.ScientificData,
-                        }));                        
+                        }));  
+                        console.log(response.data);                      
                     })
                     .catch(error => {
                         setError(error);
@@ -111,6 +115,14 @@ export default function PayLoad(props: PayLoadProps) {
 
     const handleStop = () => {
         setIsFetching(false);
+    };
+
+    const handleStart1 = () => {
+        setIsFetching1(true);
+    };
+
+    const handleStop1 = () => {
+        setIsFetching1(false);
     };
 
 
@@ -135,6 +147,13 @@ export default function PayLoad(props: PayLoadProps) {
                             <StyledButton onClick={handleStart}>
                                 <PlayArrowIcon /> PayLoad Data
                             </StyledButton>
+                        )}
+                    </Grid>
+                    <Grid item>
+                    {isFetching1 ? (
+                            <StyledButton onClick={handleStop1} className="StyledButton"><StopIcon />Telemetry Data</StyledButton>
+                        ) : (
+                            <StyledButton onClick={handleStart1}> <PlayArrowIcon />Telemetry Data</StyledButton>
                         )}
                     </Grid>
                 </Grid>

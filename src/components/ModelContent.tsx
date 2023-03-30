@@ -6,13 +6,14 @@ type ModalContentProps = {
   show: boolean;
   onHide: () => void;
   message: string;
+  title :string;
 };
 
-const ModalContent: React.FC<ModalContentProps> = ({ show, onHide, message }) => {
+const ModalContent: React.FC<ModalContentProps> = ({ show, onHide, message,title }) => {
   return (
     <Modal show={show} onHide={onHide}>
       <Modal.Header closeButton>
-        <Modal.Title>Error</Modal.Title>
+        <Modal.Title>{title}</Modal.Title>
       </Modal.Header>
       <Modal.Body>{message}</Modal.Body>
       <Modal.Footer>

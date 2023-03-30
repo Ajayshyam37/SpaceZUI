@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import styled from "styled-components";
 import MissonControl from "../components/MissonControl";
-import Communications from "./Communications";
+import Communications from "../components/Communications";
 
 const Header = styled.div`
   display: flex;
@@ -34,7 +34,7 @@ export function Home() {
                 </Header>
                 <Routes>
                   <Route path='/' element={<MissonControl/>}/>
-                  <Route path="/Communications/:spaceCraft_ID" element={<Communications/>} />
+                  <Route path="/Communications" element={<Communications/>} />
                 </Routes>
             </PageWrapper>
           </>

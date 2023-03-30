@@ -1,11 +1,11 @@
 import axios, { AxiosResponse } from "axios";
 import { useEffect, useState } from "react";
 import { Container, Grid, Typography } from "@mui/material";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import styled from "styled-components";
-import Telemetry from "../components/Telemetry";
-import PayLoad from "../components/PayLoadData";
-import ErrorMessage from "../components/ErrorMessage";
+import Telemetry from "./Telemetry";
+import PayLoad from "./PayLoadData";
+import ErrorMessage from "./ErrorMessage";
 
 const Heading1 = styled.h3`
   font-size: 1.5rem;
@@ -41,51 +41,11 @@ const Button2 = styled.button<{ isActive: boolean }>`
   }
 `;
 
-interface Communications {
-    spaceCraft_ID: number;
-    name: string;
-    state: number;
-    commType: number;
-    payloadState: number;
-    payload_ID: string;
-    payloadType: number;
-    telemetry: boolean;
-    payloaddata: boolean;
-    orbitRadius: number;
-    totalTimeToOrbit: number;
-}
-
 export default function Communications() {
     const [error, setError] = useState<string>("");
-    const [communications, setCommunications] = useState<Communications>();
     const [view, setView] = useState<"telemetry" | "payload">("telemetry"); // default view is telemetry
-    const { spaceCraft_ID } = useParams();
-    useEffect(() => {
-        axios
-            .get("https://localhost:7050/Communications/GetBySpaceCraftId", {
-                params: { id: spaceCraft_ID },
-            })
-            .then((response: AxiosResponse<any>) => {
-                const data = response.data;
-                const formattedData: Communications = {
-                    spaceCraft_ID: data.spaceCraft_ID,
-                    name: data.name,
-                    state: data.state,
-                    commType: data.commType,
-                    payloadState: data.payloadState,
-                    payload_ID: data.payaload_ID,
-                    payloadType: data.payloadType,
-                    telemetry: data.telemetry,
-                    payloaddata: data.payloadData,
-                    orbitRadius: data.orbitRadius,
-                    totalTimeToOrbit: data.totalTimeToOrbit,
-                };
-                setCommunications(formattedData);
-            }).catch(error => {
-                setError(error);
-            });
-    }, []);
-
+    const location = useLocation();
+    
     const handleTelemetryClick = () => {
         setView("telemetry");
     };
@@ -102,9 +62,9 @@ export default function Communications() {
     return (
         <>
             <Container>
-                <Button1 to="/">Missons</Button1>
+                <Button1 to="/">Misson Control</Button1>
                 <Heading1>Communications</Heading1>
-                <Typography variant="h5">{communications?.name}</Typography>
+                <Typography variant="h5">{location.state?.name}</Typography>
                 <br />
                 <Grid container>
                     <Grid item xs={12}>
@@ -132,8 +92,8 @@ export default function Communications() {
                     </Grid>
                 </Grid>
                 <br />
-                {view === 'telemetry' && <Telemetry communications={communications} />}
-                {view === 'payload' && <PayLoad communications={communications} />}
+                {view === 'telemetry' && <Telemetry spacecraft={location.state} />}
+                {view === 'payload' && <PayLoad communications={location.state} />}
             </Container>
         </>
     );

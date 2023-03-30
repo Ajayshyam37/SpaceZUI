@@ -7,6 +7,8 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import StopIcon from "@mui/icons-material/Stop";
 import LaunchIcon from "@mui/icons-material/Launch";
 import ErrorMessage from "./ErrorMessage";
+import { Spacecraft } from "../interfaces/types";
+import {TelemetryData} from "../interfaces/types";
 
 const StyledButton = styled.button`
   background-color: #6c63ff;
@@ -26,22 +28,9 @@ const StyledButton = styled.button`
   }
 `;
 
-interface Communications {
-    spaceCraft_ID: number;
-    name: string;
-    state: number;
-    commType: number;
-    payloadState: number,
-    payload_ID: string,
-    payloadType: number,
-    telemetry: boolean,
-    payloaddata: boolean,
-    orbitRadius: number,
-    totalTimeToOrbit: number
-}
 
 type TelemetryProps = {
-    communications?: Communications;
+    spacecraft?: Spacecraft;
 }
 
 export default function Telemetry(props: TelemetryProps) {
@@ -49,17 +38,6 @@ export default function Telemetry(props: TelemetryProps) {
     const [telemetry, setTelemetryData] = useState<TelemetryData[]>([]);
     const [launchStatus, setPayloadStatus] = useState<boolean>(false); // state for payload status
     const [isFetching, setIsFetching] = useState(false);
-
-    interface TelemetryData {
-        id: string;
-        altitude: string;
-        longitude: string;
-        latitude: string;
-        temperature: string;
-        timeToOrbit: string;
-    }
-
-    const { spaceCraft_ID } = useParams();
 
     const handleStart = () => {
         setIsFetching(true);
@@ -77,7 +55,7 @@ export default function Telemetry(props: TelemetryProps) {
         if (isFetching) {
             intervalId = setInterval(() => {
                 axios
-                    .get(`https://localhost:7050/Communications/GetTelemetry`, { params: { id: spaceCraft_ID, count: count } })
+                    .get(`https://localhost:7050/Communications/GetTelemetry`, { params: { id: props.spacecraft?.spaceCraft_ID } })
                     .then((response: AxiosResponse<any>) => {
                         setTelemetryData(prevTelemetryData => [...response.data,...prevTelemetryData]);
                         // check if timeToOrbit is 0 to set payload status
