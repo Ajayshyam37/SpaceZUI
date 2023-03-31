@@ -122,7 +122,6 @@ function MissonControl() {
 
     const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>, spacecraftId: string) => {
         const file = event.target.files?.[0];
-        console.log(file);
         if (file && file.type === "text/plain") {
             const formData = new FormData();
             formData.append('file', file);
@@ -237,7 +236,7 @@ function MissonControl() {
                                                     {expanded[spacecraft.spaceCraft_ID] && (
                                                         <CardActions style={{ justifyContent: 'center' }}>
                                                             <StyledButton onClick={() => handleDeorbit(spacecraft.spaceCraft_ID)}>DeOrbit</StyledButton>
-                                                                <StyledButton onClick={() => handleActiveClick(spacecraft)}>Data</StyledButton>
+                                                            <StyledButton onClick={() => handleActiveClick(spacecraft)}>Data</StyledButton>
                                                         </CardActions>
                                                     )}
                                                 </CardWrapper>
@@ -292,12 +291,10 @@ function MissonControl() {
                                         .filter((spacecraft) => spacecraft.state === 2)
                                         .map((spacecraft) => (
                                             <>
-                                                <CardWrapper key={spacecraft.spaceCraft_ID}>
-                                                    <Link to={`/Communications/${spacecraft.spaceCraft_ID}`} key={spacecraft.spaceCraft_ID}>
+                                                <CardWrapper key={spacecraft.spaceCraft_ID} onClick={()=> handleActiveClick(spacecraft)}>
                                                         <CardContent className="card-content">
                                                             <Heading3>{spacecraft.name}</Heading3>
                                                         </CardContent>
-                                                    </Link>
                                                 </CardWrapper>
                                                 <br></br>
                                             </>

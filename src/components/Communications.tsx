@@ -6,6 +6,8 @@ import styled from "styled-components";
 import Telemetry from "./Telemetry";
 import PayLoad from "./PayLoadData";
 import ErrorMessage from "./ErrorMessage";
+import CountdownTimer from "./CountDownTimer";
+import BackButton from "./BackButton";
 
 const Heading1 = styled.h3`
   font-size: 1.5rem;
@@ -14,16 +16,23 @@ const Heading1 = styled.h3`
   letter-spacing: 5px;
 `;
 
-const Button1 = styled(Link)`
-  display: inline-block;
-  color: #000;
+const StyledButton = styled.button`
+  background-color: #6c63ff;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
   border-radius: 5px;
-  padding: 10px 20px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-right: 10px;
   text-decoration: none;
   position: absolute;
   top: 20px;
-  left: 20px;
-`;
+  left: 20px;`;
+
 
 const Button2 = styled.button<{ isActive: boolean }>`
   display: inline-block;
@@ -43,9 +52,17 @@ const Button2 = styled.button<{ isActive: boolean }>`
 
 export default function Communications() {
     const [error, setError] = useState<string>("");
-    const [view, setView] = useState<"telemetry" | "payload">("telemetry"); // default view is telemetry
+    const [view, setView] = useState<"telemetry" | "payload">("telemetry");
+    const [timeriszero, setTimerIsZero] = useState(false);
     const location = useLocation();
-    
+
+    const [showCountdown, setShowCountdown] = useState(true);
+    useEffect(() => {
+        if (location.state?.state === 2) {
+            setShowCountdown(false);
+        }
+    });
+
     const handleTelemetryClick = () => {
         setView("telemetry");
     };
@@ -62,38 +79,46 @@ export default function Communications() {
     return (
         <>
             <Container>
-                <Button1 to="/">Misson Control</Button1>
+                <BackButton />
                 <Heading1>Communications</Heading1>
-                <Typography variant="h5">{location.state?.name}</Typography>
+                <Heading1>{location.state?.name}</Heading1>
                 <br />
-                <Grid container>
-                    <Grid item xs={12}>
+                <Grid container justifyContent="space-between" alignItems="center">
+                    <Grid item>
                         <Button2
                             onClick={handleTelemetryClick}
-                            isActive={view === 'telemetry'}
+                            isActive={view === "telemetry"}
                             style={{
-                                marginRight: '10px',
-                                backgroundColor: view === 'telemetry' ? '#FFFFFF' : '#f0f0f0',
-                                color: view === 'telemetry' ? '#000000' : '#707070',
+                                marginRight: "10px",
+                                backgroundColor: view === "telemetry" ? "#FFFFFF" : "#f0f0f0",
+                                color: view === "telemetry" ? "#000000" : "#707070",
                             }}
                         >
                             <Typography>Telemetry</Typography>
                         </Button2>
                         <Button2
                             onClick={handlePayloadClick}
-                            isActive={view === 'payload'}
+                            isActive={view === "payload"}
                             style={{
-                                backgroundColor: view === 'payload' ? '#FFFFFF' : '#f0f0f0',
-                                color: view === 'payload' ? '#000000' : '#707070',
+                                backgroundColor: view === "payload" ? "#FFFFFF" : "#f0f0f0",
+                                color: view === "payload" ? "#000000" : "#707070",
                             }}
                         >
                             <Typography>Payload</Typography>
                         </Button2>
                     </Grid>
+                    <Grid item sx={{ marginLeft: "auto" }}>
+                        {showCountdown && (
+                            <CountdownTimer
+                                startTime={new Date(location.state.launchtime)}
+                                duration={location.state.totalTimeToOrbit}
+                                setTimerIsZero = {setTimerIsZero}
+                            />
+                        )}
+                    </Grid>
                 </Grid>
-                <br />
-                {view === 'telemetry' && <Telemetry spacecraft={location.state} />}
-                {view === 'payload' && <PayLoad communications={location.state} />}
+                {view === 'telemetry' && <Telemetry spacecraft={location.state} timerIsZero ={timeriszero} />}
+                {view === 'payload' && <PayLoad spacecraft={location.state} />}
             </Container>
         </>
     );

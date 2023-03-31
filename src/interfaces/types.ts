@@ -21,3 +21,29 @@ export interface TelemetryData {
 export interface ExpandedState {
     [key: string]: boolean;
 }
+
+export interface PayLoadInfo {
+    payloadid: string;
+    payloadname: string;
+    payloadstate: number;
+    payLoadType: number;
+    payLoadTelemetery: boolean;
+    payLoadData: boolean;
+  }
+
+  export interface ApiResponse {
+    CommunicationData?: {
+        Bandwidth: {
+            Uplink: number;
+            Downlink: number;
+        };
+    }[];
+    ImageData?: string[];
+    ScientificData?: {
+        Weather: {
+            Rain: number;
+            Humidity: number;
+            Snow: number;
+        };
+    }[];
+}

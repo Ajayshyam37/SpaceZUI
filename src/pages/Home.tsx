@@ -11,7 +11,7 @@ const Header = styled.div`
 `;
 
 const Heading = styled.h3`
-  font-size: 2rem;
+  font-size: 1.5rem;
   color: #000;
   text-transform: uppercase;
   letter-spacing: 5px;
@@ -22,6 +22,7 @@ width: 100%;
 background: #f5f5f5;
 display: flex;
 flex-direction: column;
+overflow: auto;
 `;
 
 export function Home() {
