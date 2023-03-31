@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import axios, { AxiosResponse } from 'axios';
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import StopIcon from "@mui/icons-material/Stop";
-import LaunchIcon from "@mui/icons-material/Launch";
 import {
     TableContainer,
     Grid,
@@ -12,11 +11,11 @@ import {
     TableHead,
     TableRow,
 } from '@mui/material';
-import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import ErrorMessage from './ErrorMessage';
 import { Spacecraft, PayLoadInfo, TelemetryData, ApiResponse } from '../interfaces/types';
 import LoadingSpinner from './LoadingSpinner';
+import LaunchPayLoadButton from './LaunchPayLoadButton';
 
 const StyledButton = styled.button`
   background-color: #6c63ff;
@@ -48,25 +47,33 @@ const Heading3 = styled.h6`
 
 type PayLoadProps = {
     spacecraft?: Spacecraft;
+    timerIsZero: boolean;
 }
 
-export default function PayLoad(props: PayLoadProps) {
+function PayLoad(props: PayLoadProps) {
     const [error, setError] = useState<string>("");
     const [payloadData, setPayloadData] = useState<ApiResponse>({});
     const [payload, setPayload] = useState<PayLoadInfo>();
     const [isFetching1, setIsFetching1] = useState(false);
     const [loading, setLoading] = useState(true);
     const [payloadactive, setpayloadstate] = useState(false);
+    const [payloadlaunched,setpayloadlaunched] = useState(false);
 
-    useEffect(() => {
+    useEffect(() => {      
         if (props && props.spacecraft?.spaceCraft_ID) {
             setLoading(true);
             axios.get(`https://localhost:7050/api/PayLoad/GetPayLoadById?id=${props.spacecraft.payloadid}`)
                 .then((response: AxiosResponse<any>) => {
                     setPayload(response.data);
+                    if(response.data.payloadstate == 1 || response.data.payloadstate == 2)
+                    {
+                        setpayloadlaunched(true);
+                    }
                     if (response.data.payloadstate == 1) {
                         setpayloadstate(true);
-                    }
+                    }else{
+                        setpayloadstate(false);
+                    }  
                     if (response.data.payLoadData == true) {
                         setIsFetching1(true);
                     }
@@ -129,6 +136,10 @@ export default function PayLoad(props: PayLoadProps) {
           .catch((error) => {
             setError(error);
           });
+          setpayloadlaunched(false);
+          setpayloadlaunched(true);
+          setIsFetching1(false);
+          handlePayLoadDataStop();
       }
     
     useEffect(() => {
@@ -143,7 +154,6 @@ export default function PayLoad(props: PayLoadProps) {
         if (isFetching1) {
             intervalId = setInterval(GetPayLoadData, intervalTime);
         }
-        
 
         return () => clearInterval(intervalId);
     }, [isFetching1]);
@@ -162,6 +172,12 @@ export default function PayLoad(props: PayLoadProps) {
         <>
             <Grid container>
                 <Grid item xs={12} container justifyContent="flex-end" sx={{ marginBottom: 2 }} >
+                <Grid item>
+                    {payloadlaunched ? 
+                    (<LaunchPayLoadButton isDisabled={true} spacecraftid={props.spacecraft?.payloadid ?? ''} setpayloadlaunched = {setpayloadlaunched} setpayloadstate={setpayloadstate} />)
+                     : (<LaunchPayLoadButton isDisabled={props.timerIsZero === true ? (false) :(true)} spacecraftid={props.spacecraft?.payloadid ?? ''} setpayloadlaunched = {setpayloadlaunched} setpayloadstate={setpayloadstate} />)
+                    }
+                    </Grid>
                     <Grid item>
                         {payload && payloadactive ? (<StyledButton onClick={handelPayLoadDeorbit} >DeOrbit</StyledButton>) : (<StyledButton disabled={true} >DeOrbit</StyledButton>)}
                     </Grid>
@@ -187,7 +203,7 @@ export default function PayLoad(props: PayLoadProps) {
                     <Grid item xs={12} sm={12} container>
                         {payload?.payLoadType === 0 && payloadData.CommunicationData && (
                             <><Heading3>Pay Load Data</Heading3>
-                                <TableContainer sx={{ maxHeight: 600, overflow: "scroll" }}>
+                                <TableContainer sx={{ maxHeight: 500, overflow: "scroll" }}>
                                     <Table stickyHeader>
                                         <TableHead>
                                             <TableRow>
@@ -251,3 +267,5 @@ export default function PayLoad(props: PayLoadProps) {
         </>
     );
 };
+
+export default memo(PayLoad);

@@ -1,17 +1,13 @@
 import { Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material"
 import axios, { AxiosResponse } from "axios";
-import { useEffect, useState } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { memo, useEffect, useState } from "react";
 import styled from "styled-components";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import StopIcon from "@mui/icons-material/Stop";
-import LaunchIcon from "@mui/icons-material/Launch";
 import ErrorMessage from "./ErrorMessage";
 import { Spacecraft } from "../interfaces/types";
 import { TelemetryData } from "../interfaces/types";
-import { stat } from "fs";
 import LoadingSpinner from "./LoadingSpinner";
-import LaunchPayLoadButton from  "./LaunchPayLoadButton"
 
 
 const StyledButton = styled.button`
@@ -35,41 +31,43 @@ const StyledButton = styled.button`
 
 type TelemetryProps = {
     spacecraft?: Spacecraft;
-    timerIsZero: boolean;
-}
 
-export default function Telemetry(props: TelemetryProps) {
+}
+function Telemetry(props: TelemetryProps) {
     const [error, setError] = useState<string>("");
     const [telemetry, setTelemetryData] = useState<TelemetryData[]>([]);
     const [isFetching, setIsFetching] = useState(false);
     const [loading, setLoading] = useState(true);
-    const [launchpayload,setlaunchpayload] = useState(false);
 
     useEffect(() => {
         if (props && props.spacecraft?.spaceCraft_ID) {
             setLoading(true);
             axios.get(`https://localhost:7050/api/SpaceCrafts/GetSpaceCraftById?id=${props.spacecraft.spaceCraft_ID}`)
                 .then((response: AxiosResponse<any>) => {
-                    axios.get(`https://localhost:7050/api/Communications/GetTelemetry`, { params: { id: props.spacecraft?.spaceCraft_ID } })
-                        .then((response: AxiosResponse<any>) => {
-                            setTelemetryData(prevTelemetryData => [...response.data, ...prevTelemetryData]);
-                        }).catch(error => {
-                            setError(error);
-                        });
-                    if (response.data.state != 2 && response.data.spaceCraftTelemetery == true) {
+                    if (response.data.state !== 2 && response.data.spaceCraftTelemetery === true) {
                         setIsFetching(true);
                     }
-                    setLoading(false);
+                    axios.get(`https://localhost:7050/api/Communications/GetTelemetryById?id=${props.spacecraft?.spaceCraft_ID}`)
+                        .then((response1: AxiosResponse<any>) => {
+                            setTelemetryData(response1.data);
+                            setLoading(false);
+                        })
+                        .catch(error => {
+                            setLoading(false);
+                            setError(error);
+                        });
                 })
                 .catch(error => {
                     setLoading(false);
                     setError(error);
                 });
         }
-    }, [props]);
+    }, []);
+
 
     const handleStart = () => {
-        axios.put(`https://localhost:7050/api/SpaceCrafts/SpaceCraftTelemetry?id=${props.spacecraft?.spaceCraft_ID}&spacecraft=true`)
+        const state = true;
+        axios.put(`https://localhost:7050/api/SpaceCrafts/SpaceCraftTelemetry?id=${props.spacecraft?.spaceCraft_ID}&state=${state}`)
             .catch((error) => {
                 setError(error);
             });
@@ -77,7 +75,8 @@ export default function Telemetry(props: TelemetryProps) {
     };
 
     const handleStop = () => {
-        axios.put(`https://localhost:7050/api/SpaceCrafts/SpaceCraftTelemetry?id=${props.spacecraft?.spaceCraft_ID}&spacecraft=false`)
+        const state = false;
+        axios.put(`https://localhost:7050/api/SpaceCrafts/SpaceCraftTelemetry?id=${props.spacecraft?.spaceCraft_ID}&state=${state}`)
             .catch((error) => {
                 setError(error);
             });
@@ -87,7 +86,6 @@ export default function Telemetry(props: TelemetryProps) {
 
 
     useEffect(() => {
-        let count = 0;
         let intervalId: NodeJS.Timeout;
 
         if (isFetching) {
@@ -114,17 +112,12 @@ export default function Telemetry(props: TelemetryProps) {
             <ErrorMessage />
         );
     }
-
-
     return (
         <>
             <Grid container spacing={3}>
                 <Grid item xs={6}>
                 </Grid>
                 <Grid item xs={6} container justifyContent="flex-end">
-                    <Grid item>
-                        <LaunchPayLoadButton isDisabled={!props.timerIsZero} spacecraftid={props.spacecraft?.payloadid ?? ''} />
-                    </Grid>
                     <Grid item>
                         {props.spacecraft?.state == 2 ? (
                             <StyledButton disabled={true}>
@@ -178,3 +171,5 @@ export default function Telemetry(props: TelemetryProps) {
         </>
     );
 }
+
+export default memo(Telemetry);

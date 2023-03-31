@@ -1,10 +1,21 @@
-# Getting Started with Create React App
+<style>
+  body {
+    background-color: #000;
+  }
+</style>
+# Getting Started with SpaceZUI
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Setting Up SpaceZUI on your local environment
 
-## Available Scripts
+To Setup SpaceZUI project on your local environment follow the below steps.
 
-In the project directory, you can run:
+### `npm install`
+
+This will install the required npm library's.If npm is not installed on your machine you can refer to the following link to setup npm on your machine. [NPM SETUP](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+
+### `npm run build`
+
+Running the 'npm run build' command will trigger a build process that generates a production-ready version of your application or library by transpiling, bundling, and optimizing your code and assets.
 
 ### `npm start`
 
@@ -14,33 +25,66 @@ Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 The page will reload if you make edits.\
 You will also see any lint errors in the console.
 
-### `npm test`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Landing Page
 
-### `npm run build`
+Once the npm start command runs you should be able to see a landing page like below. (Please note that the items might differ based on the database values at that point of time)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+![Landing Page](https://drive.google.com/file/d/1fn6uDafnhfenPM8gPxuUcB9ikvGRQnHb/view?usp=share_link)
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Add New Spacecraft
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+To add a new SpaceCraft simply click the New button on the right hand corner and that will create a new launch vehicle.
 
-### `npm run eject`
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## Initiating Spacecraft
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+To initiate a Spacecraft click on the desired waiting spacecraft and you will then see an option to initate the launch.On click of that button the launch will be initiated.\
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+![Launch](https://drive.google.com/file/d/1gV_4djasSGXr2gLPYWVlPWi_KPGrfBt5/view?usp=share_link)
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
 
-## Learn More
+You'll then be prompted to select a file from your file explorer. The file should be of type *.txt
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+The txt file should contain the below infomation.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+        lvName:"YOUR SPACE CRAFT NAME"
+        lvOrbit:10000 //SPACE CRAFT ORBIT RADIUS
+        plInfo:/Volumes/AJAY/INTEL/TEST/plconfig.txt //PATH TO PAYLOAD CONFIGURATION FILE.
+
+The PayLoad Configuration File Should consits of the following information.
+
+        plName:"YOUR PAYLOAD NAME"
+        plType:"PAY LOAD TYPE" //Communication,Spy,Scientific
+
+## Active Spacecraft
+
+After successfully completing the Launch process the Spacecraft initiated will now show up under Active Spacecraft.
+
+By Clicking on Data you can view the SpaceCrafts Data.
+By Clicking on DeOrbit you can Deorbit the SpaceCraft.
+
+![Active](https://drive.google.com/file/d/1Ch-ZTOXW5QOADLd7fUSCqZkNjVJqIZ7s/view?usp=share_link)
+
+## Communications
+
+The Communications Page is Divided into Two Layouts Telemetry and PayLoad.
+
+## Telemetery
+
+This layout show the active telemetry information of the SpaceCraft it updates the list with the latest telemetry every 10s.
+
+You have an option to Start and Stop it.
+
+![Telemetry](https://drive.google.com/file/d/13213EBHQxz1Y4rWRgi_Bm_y1Jz5Ljiau/view?usp=share_link)
+
+## PayLoad
+This layout gives user the Option to Launch a PayLoad only after the Spacecraft has reached the Orbit.
+
+After the PayLoad is launched you can start the Pay Load data, this will generate random data and display on the page based off the payload type we configured while launching.
+
+You have an option to Start and Stop the PayLoad Data and also DeOrbit it.
+
+![PayLoad](https://drive.google.com/file/d/1Etq5I8s-gvtOUgakg20Wr4lGG32-_LVE/view?usp=share_link) 
+
+

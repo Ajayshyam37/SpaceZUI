@@ -1,16 +1,22 @@
-import axios, { AxiosResponse } from "axios";
-import { useEffect, useState } from "react";
+import { memo,useMemo, useEffect, useState } from "react";
 import { Container, Grid, Typography } from "@mui/material";
-import { Link, useLocation, useParams } from "react-router-dom";
 import styled from "styled-components";
 import Telemetry from "./Telemetry";
 import PayLoad from "./PayLoadData";
 import ErrorMessage from "./ErrorMessage";
 import CountdownTimer from "./CountDownTimer";
 import BackButton from "./BackButton";
+import { useLocation } from "react-router-dom";
 
 const Heading1 = styled.h3`
   font-size: 1.5rem;
+  color: #000;
+  text-transform: uppercase;
+  letter-spacing: 5px;
+`;
+
+const Heading2 = styled.h3`
+  font-size: 1rem;
   color: #000;
   text-transform: uppercase;
   letter-spacing: 5px;
@@ -49,12 +55,14 @@ const Button2 = styled.button<{ isActive: boolean }>`
     color: #fff;
   }
 `;
-
-export default function Communications() {
+function Communications() {
     const [error, setError] = useState<string>("");
     const [view, setView] = useState<"telemetry" | "payload">("telemetry");
     const [timeriszero, setTimerIsZero] = useState(false);
     const location = useLocation();
+    const MemoizedTelemetry = useMemo(() => memo(Telemetry), [location.state?.spaceCraft_ID]);
+    const MemoizedPayLoad = memo(PayLoad);
+
 
     const [showCountdown, setShowCountdown] = useState(true);
     useEffect(() => {
@@ -70,7 +78,6 @@ export default function Communications() {
     const handlePayloadClick = () => {
         setView("payload");
     };
-
     if (error) {
         return (
             <ErrorMessage />
@@ -82,6 +89,7 @@ export default function Communications() {
                 <BackButton />
                 <Heading1>Communications</Heading1>
                 <Heading1>{location.state?.name}</Heading1>
+                <Heading2>{location.state?.payloadname}</Heading2>
                 <br />
                 <Grid container justifyContent="space-between" alignItems="center">
                     <Grid item>
@@ -117,10 +125,12 @@ export default function Communications() {
                         )}
                     </Grid>
                 </Grid>
-                {view === 'telemetry' && <Telemetry spacecraft={location.state} timerIsZero ={timeriszero} />}
-                {view === 'payload' && <PayLoad spacecraft={location.state} />}
+                {view === 'telemetry' && <MemoizedTelemetry spacecraft={location.state} />}
+                {view === 'payload' && <MemoizedPayLoad spacecraft={location.state} timerIsZero ={timeriszero} />}
             </Container>
         </>
     );
 
 }
+
+export default memo(Communications);

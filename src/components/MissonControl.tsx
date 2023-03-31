@@ -1,8 +1,8 @@
 ﻿import styled from "styled-components";
-import { Container, Card, Modal } from "react-bootstrap";
-import { useEffect, useState } from "react";
-import axios, { AxiosError, AxiosResponse } from "axios";
-import { Link, useNavigate } from "react-router-dom";
+import { Container, Card } from "react-bootstrap";
+import { memo, useEffect, useState } from "react";
+import axios, { AxiosResponse } from "axios";
+import { useNavigate } from "react-router-dom";
 import ErrorMessage from "./ErrorMessage";
 import { Grid, CardContent, CardActions, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
 import ModalContent from "./ModelContent";
@@ -81,8 +81,6 @@ function MissonControl() {
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [loading, setLoading] = useState(true);
-    const [open, setOpen] = useState(false);
-    const [spacecraftName, setSpacecraftName] = useState('');
 
     const navigate = useNavigate();
 
@@ -101,7 +99,6 @@ function MissonControl() {
     useEffect(() => {
         loadData();
     }, []);
-
 
     const handleExpandClick = (id: string) => {
         if (id === expandedCardId) {
@@ -146,21 +143,12 @@ function MissonControl() {
             });
     };
 
-    const handleOpen = () => {
-        setOpen(true);
-    };
-
-    const handleClose = () => {
-        setOpen(false);
-    };
-
-    const handleSave = () => {
-        axios.post(`https://localhost:7050/api/SpaceCrafts/NewSpaceCraft?name=${spacecraftName}`)
+    const handleNewSpaceCraft = () => {
+        axios.post(`https://localhost:7050/api/SpaceCrafts/NewSpaceCraft`)
         .then(() => { loadData() })
             .catch(error => {
                 setError(error);
             });
-        handleClose();
     };
 
     function handleActiveClick(spacecraft : Spacecraft) {
@@ -187,34 +175,10 @@ function MissonControl() {
                         <Container>
                             <Heading1>Mission Control</Heading1>
                             <Grid container justifyContent="flex-end" style={{ marginBottom: '20px' }}>
-                                <StyledButton onClick={handleOpen}>
+                                <StyledButton onClick={handleNewSpaceCraft}>
                                     <AddIcon></AddIcon>
                                     New
                                 </StyledButton>
-                                <Dialog open={open} onClose={handleClose}>
-                                    <DialogTitle>Add Spacecraft</DialogTitle>
-                                    <DialogContent>
-                                        <TextField
-                                            autoFocus
-                                            margin="dense"
-                                            id="name"
-                                            label="Spacecraft Name"
-                                            fullWidth
-                                            value={spacecraftName}
-                                            onChange={(event) => setSpacecraftName(event.target.value)}
-                                            autoComplete="off"
-                                        />
-                                    </DialogContent>
-
-                                    <DialogActions>
-                                        <Button onClick={handleClose} color="primary">
-                                            Cancel
-                                        </Button>
-                                        <Button onClick={handleSave} color="primary">
-                                            Save
-                                        </Button>
-                                    </DialogActions>
-                                </Dialog>
                             </Grid>
                         </Container>
                     </Grid>
@@ -310,4 +274,4 @@ function MissonControl() {
     );
 }
 
-export default MissonControl;
+export default memo(MissonControl);

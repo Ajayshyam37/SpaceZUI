@@ -1,19 +1,25 @@
 import LaunchIcon  from "@mui/icons-material/Launch"
-import { isDisabled } from "@testing-library/user-event/dist/utils"
 import axios from "axios";
+import { Dispatch, SetStateAction } from "react";
 import styled from "styled-components"
 
 type LaunchPayLoadButtonProps = {
     isDisabled: boolean;
     spacecraftid: string;
+    setpayloadlaunched:Dispatch<SetStateAction<boolean>>;
+    setpayloadstate:Dispatch<SetStateAction<boolean>>;
   };
   
   const handlelaunch = (props: LaunchPayLoadButtonProps) => {
-    console.log(props);
+    if(!props.isDisabled)
+    {
+    props.setpayloadlaunched(true);
     axios.put(`https://localhost:7050/api/PayLoad/LaunchPayLoad?id=${props.spacecraftid}&spacecraft=false`)
       .catch((error) => {
         
       });
+    }
+    props.setpayloadstate(true);
   };
   
   const LaunchPayLoadButton: React.FC<LaunchPayLoadButtonProps> = (props) => {
