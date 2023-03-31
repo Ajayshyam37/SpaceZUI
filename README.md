@@ -45,7 +45,7 @@ The text file should contain the below information.
 
         lvName: "YOUR SPACE CRAFT NAME"
         lvOrbit:10000 //SPACE CRAFT ORBIT RADIUS
-        plInfo:/Volumes/AJAY/INTEL/TEST/plconfig.txt //PATH TO PAYLOAD CONFIGURATION FILE.
+        plInfo://PATH TO PAYLOAD CONFIGURATION FILE.
 
 The PayLoad Configuration File Should consists of the following information.
 
