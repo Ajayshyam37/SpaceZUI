@@ -1,8 +1,3 @@
-<style>
-  body {
-    background-color: #000;
-  }
-</style>
 # Getting Started with SpaceZUI
 
 ## Setting Up SpaceZUI on your local environment
