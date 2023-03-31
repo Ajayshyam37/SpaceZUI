@@ -25,7 +25,7 @@ You will also see any lint errors in the console.
 
 Once the npm start command runs you should be able to see a landing page like below. (Please note that the items might differ based on the database values at that point of time)
 
-![Landing Page](https://drive.google.com/file/d/1fn6uDafnhfenPM8gPxuUcB9ikvGRQnHb/view?usp=share_link)
+![Landing Page](https://drive.google.com/uc?export=view&id=1fn6uDafnhfenPM8gPxuUcB9ikvGRQnHb)
 
 ## Add New Spacecraft
 
@@ -36,7 +36,7 @@ To add a new SpaceCraft simply click the New button on the right hand corner and
 
 To initiate a Spacecraft click on the desired waiting spacecraft and you will then see an option to initate the launch.On click of that button the launch will be initiated.\
 
-![Launch](https://drive.google.com/file/d/1gV_4djasSGXr2gLPYWVlPWi_KPGrfBt5/view?usp=share_link)
+![Launch](https://drive.google.com/uc?export=view&id=1gV_4djasSGXr2gLPYWVlPWi_KPGrfBt5)
 
 
 You'll then be prompted to select a file from your file explorer. The file should be of type *.txt
@@ -59,7 +59,7 @@ After successfully completing the Launch process the Spacecraft initiated will n
 By Clicking on Data you can view the SpaceCrafts Data.
 By Clicking on DeOrbit you can Deorbit the SpaceCraft.
 
-![Active](https://drive.google.com/file/d/1Ch-ZTOXW5QOADLd7fUSCqZkNjVJqIZ7s/view?usp=share_link)
+![Active](https://drive.google.com/uc?export=view&id=1Ch-ZTOXW5QOADLd7fUSCqZkNjVJqIZ7s)
 
 ## Communications
 
@@ -71,7 +71,7 @@ This layout show the active telemetry information of the SpaceCraft it updates t
 
 You have an option to Start and Stop it.
 
-![Telemetry](https://drive.google.com/file/d/13213EBHQxz1Y4rWRgi_Bm_y1Jz5Ljiau/view?usp=share_link)
+![Telemetry](https://drive.google.com/uc?export=view&id=13213EBHQxz1Y4rWRgi_Bm_y1Jz5Ljiau)
 
 ## PayLoad
 This layout gives user the Option to Launch a PayLoad only after the Spacecraft has reached the Orbit.
@@ -80,6 +80,6 @@ After the PayLoad is launched you can start the Pay Load data, this will generat
 
 You have an option to Start and Stop the PayLoad Data and also DeOrbit it.
 
-![PayLoad](https://drive.google.com/file/d/1Etq5I8s-gvtOUgakg20Wr4lGG32-_LVE/view?usp=share_link) 
+![PayLoad](https://drive.google.com/uc?export=view&id=1Etq5I8s-gvtOUgakg20Wr4lGG32-_LVE) 
 
 
