@@ -6,7 +6,7 @@ To set up the SpaceZUI project in your local environment follow the below steps.
 
 ### `npm install`
 
-This will install the required npm libraries. If npm is not installed on your machine you can refer to the following link to set up npm on your machine. [NPM SETUP](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+This will install the required npm libraries. If npm is not installed on your machine you can refer [here](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) to set up npm on your machine.
 
 ### `npm run build`
 
